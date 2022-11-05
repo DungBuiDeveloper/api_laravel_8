@@ -6,13 +6,23 @@ use App\Models\Article;
 use Illuminate\Http\Request;
 use App\Helpers\CSVHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\ArticleService;
 
+use App\Interfaces\ArticleRepositoryInterface;
 
 class ArticleController extends Controller
 {
+    private $articleService;
+
+    public function __construct(ArticleRepositoryInterface $articleServiceInterface)
+    {   
+        $this->articleService = new ArticleService($articleServiceInterface);
+    }
+
     public function index()
     {
-        return Article::all();
+        $article = $this->articleService->getAllArticles();
+        return $article;
     }
 
     public function csv()
