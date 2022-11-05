@@ -9,7 +9,7 @@ document.body.appendChild(link)
 link.click()
 ```
 
-
+## PDF DOWNLOAD Axios
 ```
 axios(`http://laravel-api.test/api/pdf/articles`, {
     method: 'GET',
