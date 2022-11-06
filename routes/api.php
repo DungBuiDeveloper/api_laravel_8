@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ChangePasswordController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,8 +21,12 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function ($router) {
-    Route::post('login', 'App\Http\Controllers\AuthController@login');
-    Route::post('register', 'App\Http\Controllers\AuthController@register');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::group(['prefix' => 'password'],function() {
+        Route::post('/forgot', [ForgotPasswordController::class, 'getResetToken']);
+        Route::post('/reset', [ChangePasswordController::class , 'passwordResetProcess']);
+    });
 });
 
 //Auth
@@ -27,15 +34,15 @@ Route::group([
     'middleware' => 'auth:api'
 ], function ($router) use($adminRole) {
     Route::get('articles', 'App\Http\Controllers\ArticleController@index');
-    // Route::get('csv/articles', 'App\Http\Controllers\ArticleController@csv');
     Route::get('articles/{article}', 'App\Http\Controllers\ArticleController@show');
     Route::post('articles', 'App\Http\Controllers\ArticleController@store');
     Route::put('articles/{article}', 'App\Http\Controllers\ArticleController@update');
     Route::delete('articles/{article}', 'App\Http\Controllers\ArticleController@delete');
 
-    Route::get('user-profile', 'App\Http\Controllers\AuthController@userProfile');
-    Route::post('logout', 'App\Http\Controllers\AuthController@logout');
-    Route::post('refresh', 'App\Http\Controllers\AuthController@refresh');
+    Route::get('/me', [AuthController::class, 'userProfile']);
+
+    Route::post('logout', 'AuthController@logout');
+    Route::post('refresh', 'AuthController@refresh');
 
     //Admin Role
     Route::group([

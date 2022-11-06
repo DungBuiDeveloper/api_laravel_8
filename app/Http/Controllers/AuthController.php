@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -58,6 +57,50 @@ class AuthController extends Controller
             'message' => 'User successfully registered',
             'user' => $user
         ], 201);
+    }
+
+
+    /**
+     * resetPassword a User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function resetPassword(ResetPasswordRequest $request, JWTAuth $JWTAuth)
+    {
+        $response = $this->broker()->reset(
+            $this->credentials($request), function ($user, $password) {
+                $this->reset($user, $password);
+            }
+        );
+
+        if($response !== Password::PASSWORD_RESET) {
+            throw new HttpException(500);
+        }
+
+        if(!Config::get('boilerplate.reset_password.release_token')) {
+            return response()->json([
+                'status' => 'ok',
+            ]);
+        }
+
+        $user = User::where('email', '=', $request->get('email'))->first();
+
+        return response()->json([
+            'status' => 'ok',
+            'token' => $JWTAuth->fromUser($user)
+        ]);
+    }
+
+    public function broker()
+    {
+        return Password::broker();
+    }
+
+    protected function reset($user, $password)
+    {
+        $user->password = $password;
+        $user->save();
     }
 
 
