@@ -40,9 +40,8 @@ Route::group([
     Route::delete('articles/{article}', 'App\Http\Controllers\ArticleController@delete');
 
     Route::get('/me', [AuthController::class, 'userProfile']);
-
-    Route::post('logout', 'AuthController@logout');
-    Route::post('refresh', 'AuthController@refresh');
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
 
     //Admin Role
     Route::group([

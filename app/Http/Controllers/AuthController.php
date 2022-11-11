@@ -59,51 +59,6 @@ class AuthController extends Controller
         ], 201);
     }
 
-
-    /**
-     * resetPassword a User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-
-    public function resetPassword(ResetPasswordRequest $request, JWTAuth $JWTAuth)
-    {
-        $response = $this->broker()->reset(
-            $this->credentials($request), function ($user, $password) {
-                $this->reset($user, $password);
-            }
-        );
-
-        if($response !== Password::PASSWORD_RESET) {
-            throw new HttpException(500);
-        }
-
-        if(!Config::get('boilerplate.reset_password.release_token')) {
-            return response()->json([
-                'status' => 'ok',
-            ]);
-        }
-
-        $user = User::where('email', '=', $request->get('email'))->first();
-
-        return response()->json([
-            'status' => 'ok',
-            'token' => $JWTAuth->fromUser($user)
-        ]);
-    }
-
-    public function broker()
-    {
-        return Password::broker();
-    }
-
-    protected function reset($user, $password)
-    {
-        $user->password = $password;
-        $user->save();
-    }
-
-
     /**
      * Log the user out (Invalidate the token).
      *
@@ -111,8 +66,7 @@ class AuthController extends Controller
      */
     public function logout() {
         auth()->logout();
-
-        return response()->json(['message' => 'User successfully signed out']);
+        return response()->json(['message' => 'USER_SUCESS']);
     }
 
     /**
